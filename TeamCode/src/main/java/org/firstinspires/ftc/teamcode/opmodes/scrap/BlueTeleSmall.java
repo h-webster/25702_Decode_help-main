@@ -69,7 +69,7 @@ public class BlueTeleSmall extends OpMode {
         RightServo = hardwareMap.get(CRServo.class, "RightServo");
 
         // ==== Spindexer setup ====
-        spindexer.freshInit(hardwareMap);
+//        spindexer.freshInit(hardwareMap);
         //indexer
         //indexer.Init(hardwareMap, telemetry);
         //shooter

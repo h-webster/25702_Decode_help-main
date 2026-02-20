@@ -13,6 +13,8 @@ public class ShooterTuningOpMode extends LinearOpMode {
     // Dashboard Controls - Change these in FTC Dashboard while running
     public static boolean RUN_SHOOTER = true;
     public static double TEST_TARGET = 1000;
+    Indexer indexer;
+    Spindexer spindexer;
 
     // Quick preset buttons for common velocities
     public static boolean TEST_CLOSE = false;
@@ -25,6 +27,7 @@ public class ShooterTuningOpMode extends LinearOpMode {
         // IMPORTANT: Before running this, check your Driver Station!
         // Make sure you have a motor configured with the exact name "shooter"
         ShooterSubsystem shooter = new ShooterSubsystem(hardwareMap);
+        indexer.Init(hardwareMap, telemetry, spindexer);
 
         telemetry.addLine("=================================");
         telemetry.addLine("  SHOOTER PIDF TUNING MODE");
@@ -47,6 +50,9 @@ public class ShooterTuningOpMode extends LinearOpMode {
             } else {
                 shooter.setTarget(0);
                 shooter.off(); // CRITICAL: We must explicitly turn it off
+            }
+            if (gamepad1.dpad_up){
+                indexer.Index();
             }
 
             // Apply velocity control math

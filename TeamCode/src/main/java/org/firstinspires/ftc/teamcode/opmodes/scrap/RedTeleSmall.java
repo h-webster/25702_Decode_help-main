@@ -69,7 +69,7 @@ public class RedTeleSmall extends OpMode {
         RightServo = hardwareMap.get(CRServo.class, "RightServo");
 
         // ==== Spindexer setup ====
-        spindexer.freshInit(hardwareMap);
+//        spindexer.freshInit(hardwareMap);
         //indexer
         //indexer.Init(hardwareMap, telemetry);
         //shooter
@@ -186,7 +186,7 @@ public class RedTeleSmall extends OpMode {
         telemetry.addData("Is Spindexer busy? ", spindexer.spindexer.isBusy());
         if (indexer.currentState == Indexer.State.IDLE) { // can't spindex if indexer is shooting
             if (gamepad1.left_bumper) {
-                spindexer.rotateClockwise();
+//                spindexer.rotateClockwise();
             } else if (gamepad1.right_bumper) {
                 spindexer.rotateCounterclockwise();
             }

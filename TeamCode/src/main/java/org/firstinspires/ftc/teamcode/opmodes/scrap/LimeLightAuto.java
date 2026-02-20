@@ -189,7 +189,7 @@ public class LimeLightAuto extends OpMode {
         spinner.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // ==== Spindexer setup ====
-        spindexer.dataInit(hardwareMap);
+//        spindexer.dataInit(hardwareMap);
 
         // ==== Shooter setup ====
         shooter = hardwareMap.get(DcMotor.class, "shooter");

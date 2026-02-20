@@ -208,7 +208,7 @@ public class HardCodeBlue extends OpMode {
 
 
         // ==== Spindexer setup ====
-        spindexer.freshInit(hardwareMap);
+//        spindexer.freshInit(hardwareMap);
 
         // ==== Simple turret setup ====
         //simpleTurret.Init(hardwareMap);

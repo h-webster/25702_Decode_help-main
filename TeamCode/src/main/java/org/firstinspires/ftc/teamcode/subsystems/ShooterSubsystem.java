@@ -23,7 +23,7 @@ public class ShooterSubsystem{
     private double t = 0;
 
     public static double kS = 0.055, kV = 0.000375, kP = 0.02; //kS = overcome initial friction, kV = speedup to max velocity, kP = proportional to power needed to reach target
-    private static final double[] xs = {44, 72, 100};
+    private static final double[] xs = {25, 36, 80};
     // Grid of Y coordinates
     private static final double[] ys = {10, 38, 66};
     private static final double[][] closeVelocities = {

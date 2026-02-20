@@ -226,7 +226,7 @@ public void init() {
 
 
     // ==== Spindexer setup ====
-    spindexer.freshInit(hardwareMap);
+//    spindexer.freshInit(hardwareMap);
 
     // ==== Simple turret setup ====
     //simpleTurret.Init(hardwareMap);

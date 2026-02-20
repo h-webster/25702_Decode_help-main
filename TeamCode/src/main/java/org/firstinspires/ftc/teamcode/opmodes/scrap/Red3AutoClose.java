@@ -178,7 +178,7 @@ public class Red3AutoClose extends OpMode {
         RightServo = hardwareMap.get(CRServo.class, "RightServo");
 
         // ==== Spindexer setup ====
-        spindexer.freshInit(hardwareMap);
+//        spindexer.freshInit(hardwareMap);
 
         // ==== Shooter setup ====
         shooter = hardwareMap.get(DcMotor.class, "shooter");

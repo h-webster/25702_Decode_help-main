@@ -3,216 +3,166 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Configurable
 public class Spindexer {
-    public DcMotor spindexer;
+    public DcMotorEx spindexer;
     private String motorName = "motor2";
 
     // PID Coefficients
-    public static double Kp = 0.00785; // Proportional - Start with small value
-    public static double Ki = 0.00105;   // Integral - Start very small
-    public static double Kd = 0.0025; // Derivative - Start small
+    public static double Kp = 0.072;
+    public static double Ki = 0.0001;
+    public static double Kd = 0.15;
+    public static double KpClose = 0.03;
+    public static double KiClose = 0.0001;
+    public static double KdCLose = 0.25;
+    // Limits
+    public static double MAX_POWER = 0.9;
+    public static double MIN_POWER = -0.9;
+    private static final double POSITION_TOLERANCE = 4.0;
+    private static final double MAX_INTEGRAL = 50;
 
-    private double ticksPerRotation = 384.5;
-    private double targetPositionMultiple = ticksPerRotation / 3;
-    public double positionOne = targetPositionMultiple;
-    public double positionTwo = targetPositionMultiple * 2;
-    public double positionThree = targetPositionMultiple * 3;
+    // Movement Math
+    private final double ticksPerRotation = 384.5;
+    private double accum = 0.0; // Floating point target to prevent rounding drift
 
-    // PID Variables
+    // PID State
     private double lastError = 0;
     private double integralSum = 0;
-    private final Timer pidTimer = new Timer();
-
-    // PID tuning parameters
-    private static final double POSITION_TOLERANCE = 3.0; // ticks - how close is "close enough"
-    private static final double MAX_INTEGRAL = 50; // Prevent integral windup
-    private static final double MAX_POWER = 0.8; // Maximum motor power
-    private static final double MIN_POWER = -0.8; // Minimum motor power
-
-    // Target position variable for PID
+    private double power = 0;
     private int targetPosTicks = 0;
 
     public int currentPosition = 1;
     public int targetPositionIndex = 1;
     public int[] posStates = {-1, -1, -1};
 
-    public void getMotor(String nameOfMotor) {
-        motorName = nameOfMotor;
-    }
+    // Timers
+    private final Timer pidTimer = new Timer();
+    private final Timer moveTimer = new Timer();
+    private static final double MIN_MOVE_DELAY = 0.3;
 
-    // Initializing the motor with fresh values (resets encoder)
-    public void freshInit(HardwareMap hardwareMap) {
-        spindexer = hardwareMap.get(DcMotor.class, motorName);
-        spindexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    public void init(HardwareMap hardwareMap, boolean reset) {
+        spindexer = hardwareMap.get(DcMotorEx.class, motorName);
+        if (reset) {
+            spindexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
         spindexer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         spindexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         spindexer.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        // Initialize PID
+        accum = 0;
         targetPosTicks = 0;
+        currentPosition = 1;
+        targetPositionIndex = 1;
         lastError = 0;
         integralSum = 0;
         pidTimer.resetTimer();
-    }
-    public void dataInit(HardwareMap hardwareMap){
-        spindexer = hardwareMap.get(DcMotor.class, motorName);
-        spindexer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        spindexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        spindexer.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        // Initialize PID
-        targetPosTicks = spindexer.getCurrentPosition();
-        lastError = 0;
-        integralSum = 0;
-        pidTimer.resetTimer();
+        moveTimer.resetTimer();
     }
 
-    public void setTargetPosition(int ticks) {
-        targetPosTicks = ticks;
-        // Reset integral when target changes to prevent windup
-        integralSum = 0;
+    public void initAndReset(HardwareMap hardwareMap) {
+        init(hardwareMap, true);
     }
 
-    // Main PID update loop - MUST be called repeatedly in your OpMode loop
-    public void update(){
+    public void update() {
         double currentPos = spindexer.getCurrentPosition();
         double error = targetPosTicks - currentPos;
 
-        // Get time delta
         double deltaTime = pidTimer.getElapsedTime();
+        pidTimer.resetTimer();
 
-        // Prevent division by zero on first run
-        if (deltaTime == 0) {
-            pidTimer.resetTimer();
-            return;
-        }
+        // Safety: Avoid division by zero in fast loops
+        if (deltaTime <= 0) deltaTime = 0.001;
 
-        // Calculate Derivative
+        // Derivative: Rate of change of error
         double derivative = (error - lastError) / deltaTime;
 
-        // Calculate Integral with anti-windup
-        // Only accumulate if we're not already at maximum integral
-        if (Math.abs(integralSum) < MAX_INTEGRAL) {
+        // Integral: Accumulated error with Anti-Windup
+        if (Ki > 0 && Math.abs(error) > POSITION_TOLERANCE) {
             integralSum += error * deltaTime;
+            integralSum = Math.max(-MAX_INTEGRAL, Math.min(MAX_INTEGRAL, integralSum));
         }
 
-        // Reset integral if we're very close to target (prevents oscillation)
-        if (Math.abs(error) < POSITION_TOLERANCE) {
+        // Power Calculation
+        if (Math.abs(error) > POSITION_TOLERANCE) {
+            power = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
+        } else if (Math.abs(error) > 1){
+            // Holding state: Clear integral to prevent "creeping" or oscillating
+            power = (KpClose * error) + (KiClose * integralSum) + (KdCLose * derivative);
+
+        }
+        else {
+            power = (0.01 * error);
             integralSum = 0;
         }
 
-        // Calculate PID Power
-        double power = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
-
-        // Clamp power to safe limits
+        // Clamp and Apply
         power = Math.max(MIN_POWER, Math.min(MAX_POWER, power));
-
-        // Apply power to motor
         spindexer.setPower(power);
 
-        if (isAtTarget()){
+        // State update
+        if (Math.abs(error) < POSITION_TOLERANCE) {
             currentPosition = targetPositionIndex;
         }
 
-        // Update for next iteration
         lastError = error;
-        pidTimer.resetTimer();
     }
 
-    // Check if we're at the target position within tolerance
+    /**
+     * Moves to a specific slot (1, 2, or 3) always spinning forward.
+     */
+    public void goToPos(int newPos, boolean priority) {
+        if (!priority) {
+            if (targetPositionIndex == newPos) return;
+            if (moveTimer.getElapsedTime() < MIN_MOVE_DELAY) return;
+        }
+
+        // Calculate how many 120-degree jumps are needed to get to the newPos spinning forward
+        int positionsToMove;
+        if (newPos > targetPositionIndex) {
+            positionsToMove = newPos - targetPositionIndex;
+        } else {
+            // Wrap around logic (e.g., going from 3 to 1 is a 1-slot move)
+            positionsToMove = (3 - targetPositionIndex) + newPos;
+        }
+
+        // Accumulate ticks using double precision to eliminate drift
+        accum += (positionsToMove * (ticksPerRotation / 3.0));
+
+        // Round to nearest integer for the motor encoder target
+        targetPosTicks = (int) Math.round(accum);
+
+        targetPositionIndex = newPos;
+        integralSum = 0; // Reset integral on new movement
+        moveTimer.resetTimer();
+    }
+
+    public void goToPos(int newPos) {
+        goToPos(newPos, false);
+    }
+
+    public void rotateCounterclockwise() {
+        int next = (targetPositionIndex % 3) + 1;
+        goToPos(next, false);
+    }
+
+    // --- Helper Methods ---
+
     public boolean isAtTarget() {
         return Math.abs(targetPosTicks - spindexer.getCurrentPosition()) < POSITION_TOLERANCE;
     }
 
-    public boolean isAtPos(int pos) {
-        return currentPosition == pos && isAtTarget();
-    }
-
-    public void GoToPos(int newPos, boolean priority) {
-        if (!priority && targetPositionIndex == newPos && isAtTarget()) {
-            return;
-        }
-
-        int targetTicks = 0;
-
-        // Calculate the ticks based on the new position index
-        if (newPos == 1) targetTicks = (int)positionOne;
-        else if (newPos == 2) targetTicks = (int)positionTwo;
-        else if (newPos == 3) targetTicks = (int)positionThree;
-
-        // Set the target for the PID loop to follow
-        setTargetPosition(targetTicks);
-        targetPositionIndex = newPos;
-    }
-
-    public void GoToPos(int newPos) {
-        GoToPos(newPos, false);
-    }
-
-//    public int getNewClockwisePos() {
-//        return (currentPosition % 3) + 1; // 1->2, 2->3, 3->1
-//    }
-//
-//    public int getNewCounterClockwisePos() {
-//        return ((currentPosition + 1) % 3) + 1; // 1->3, 2->1, 3->2
-//    }
-
-    public void rotateClockwise() {
-        int newPos = (targetPositionIndex % 3) + 1;
-        GoToPos(newPos);
-    }
-
-    public void rotateCounterclockwise() {
-        int newPos = ((targetPositionIndex + 1) % 3)  + 1;
-        GoToPos(newPos);
-    }
-
-    public void updateCurrentSlotState(String state) {
-        if (state.equals("GREEN")) {
-            posStates[currentPosition - 1] = 1;
-        } else if (state.equals("PURPLE")) {
-            posStates[currentPosition - 1] = 2;
-        } else {
-            posStates[currentPosition - 1] = -1;
+    public void updateSlotState(int slot, int state) {
+        if (slot >= 1 && slot <= 3) {
+            posStates[slot - 1] = state;
         }
     }
 
-    public boolean isSpindexerFull() {
-        for (int i = 0; i < posStates.length; i++) {
-            if (posStates[i] <= 0) { // if not purple or green
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void rotateEmptySlot() {
-        for (int i = 0; i < posStates.length; i++) {
-            if (posStates[i] <= 0) { // if not purple or green
-                GoToPos(i+1);
-                return; // Only rotate to the first empty slot found
-            }
-        }
-    }
-
-    // Getter methods for debugging/tuning
-    public int getTargetPosition() {
-        return targetPosTicks;
-    }
-
-    public int getCurrentPosition() {
-        return spindexer.getCurrentPosition();
-    }
-
-    public double getCurrentError() {
-        return targetPosTicks - spindexer.getCurrentPosition();
-    }
-
-    public double getIntegralSum() {
-        return integralSum;
-    }
+    public int getTargetTicks() { return targetPosTicks; }
+    public double getPower() { return power; }
+    public double getError() { return targetPosTicks - spindexer.getCurrentPosition(); }
 }
+
