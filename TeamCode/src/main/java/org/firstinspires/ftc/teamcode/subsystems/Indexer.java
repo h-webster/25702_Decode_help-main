@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.pedropathing.control.Controller;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
@@ -13,6 +14,7 @@ public class Indexer {
 
     private boolean indexerOpen = false;
     private boolean indexerPressed = false;
+    ServoController controller;
 
     private Servo indexer;
 
@@ -59,6 +61,8 @@ public class Indexer {
         spindexer = spin;
         // Initialize servos to start positions
         indexer.setPosition(INDEXER_START);
+
+        controller = indexer.getController();
     }
 
     public void TestUpdate(int movement) {
@@ -82,6 +86,13 @@ public class Indexer {
         } else {
             telemetry.addData("CANT INDEX", "YET");
         }
+    }
+
+    public void disable(){
+        controller.pwmDisable();
+    }
+    public void enable(){
+        controller.pwmEnable();
     }
     public boolean CanShoot() {
         return currentState == State.IDLE && !shootingAndSpinning && shootingAndSpinningALL == 0;

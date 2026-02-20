@@ -93,7 +93,7 @@ public class ShooterSubsystem{
             setTarget(closeInterpolation.interpolate(xdist, ydist));
         }
         else {
-            setTarget(1550);
+            setTarget(2000);
         }
     }
 
