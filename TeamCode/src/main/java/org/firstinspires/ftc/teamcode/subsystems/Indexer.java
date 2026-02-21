@@ -114,6 +114,11 @@ public class Indexer {
             telemetry.addData("CANT SHOOT AND SPIN ALL", "YET");
         }
     }
+
+    public void indexUp(){
+
+    }
+
     public void Update() {
          switch (currentState) {
              case IDLE:

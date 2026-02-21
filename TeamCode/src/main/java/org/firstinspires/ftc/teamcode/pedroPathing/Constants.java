@@ -36,7 +36,8 @@ public class Constants {
         .forwardZeroPowerAcceleration(-34.55780728834356)
         .translationalPIDFCoefficients(new PIDFCoefficients(0.045, 0, 0.003, 0.021))
         .headingPIDFCoefficients(new PIDFCoefficients(0.6, 0.0, 0.005, 0.025))
-        .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025, 0.0, 0.00001, 0.6, 0.01));
+        .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025, 0.0, 0.00001, 0.6, 0.01))
+        .centripetalScaling(0.00045);
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()

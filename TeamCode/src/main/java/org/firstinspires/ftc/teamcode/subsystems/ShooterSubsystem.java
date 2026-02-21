@@ -20,6 +20,7 @@ public class ShooterSubsystem{
 
     DcMotorEx motor;
     private boolean active = false;
+    public static double velocityTolerance = 50;
     private double t = 0;
 
     public static double kS = 0.055, kV = 0.000375, kP = 0.02; //kS = overcome initial friction, kV = speedup to max velocity, kP = proportional to power needed to reach target
@@ -35,7 +36,6 @@ public class ShooterSubsystem{
     // The Math Object that connects the dots
     public static final Interpolation2D closeInterpolation = new BilinearInterpolation(xs, ys, closeVelocities);
 
-    public static double targetVelocity;
 
     private final TelemetryManager panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     private final ElapsedTime timer = new ElapsedTime();
@@ -54,6 +54,14 @@ public class ShooterSubsystem{
 
     public void setPower(double p){
         motor.setPower(p);
+    }
+    public boolean isAtVelocity(double targetVelocity) {
+        // Use configurable tolerance
+        return Math.abs(targetVelocity - getVelocity()) < velocityTolerance;
+    }
+    public boolean isAtVelocity() {
+        // Convenience method using current target
+        return isAtVelocity(getTarget());
     }
 
     public void off(){
@@ -98,11 +106,10 @@ public class ShooterSubsystem{
     }
 
     private void updateSignals() {
-        double t = timer.seconds();
         double curVelocity = motor.getVelocity();
-        double error = targetVelocity - curVelocity;
+        double error = t - curVelocity;
 
-        panelsTelemetry.addData("TargetVelocity", targetVelocity);
+        panelsTelemetry.addData("TargetVelocity", t);
         panelsTelemetry.addData("ActualVelocity", curVelocity);
         panelsTelemetry.addData("Error", error);
         panelsTelemetry.addData("MaxVelocity", motor.getMotorType().getAchieveableMaxTicksPerSecond());
