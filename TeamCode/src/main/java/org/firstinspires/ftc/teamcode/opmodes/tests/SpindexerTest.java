@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 // this is so we can find how much a full rotation of the spindexer is
-@TeleOp(name = "Spindexer test", group = "Tests")
+//@TeleOp(name = "Spindexer test", group = "Tests")
 public class SpindexerTest extends OpMode {
     //Spindexer spindexer = new Spindexer();
     DcMotor spindexer;

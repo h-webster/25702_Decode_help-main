@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-@TeleOp(name = "Motor Power Control", group = "Test")
+//@TeleOp(name = "Motor Power Control", group = "Test")
 public class MotorPowerControl extends OpMode {
     private DcMotorEx motor2;
     private double motorPower = 0.0;

@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
-@TeleOp(name="Intake test", group="test")
+//@TeleOp(name="Intake test", group="test")
 public class IntakeTest extends OpMode {
     private final Intake intake = new Intake();
     @Override

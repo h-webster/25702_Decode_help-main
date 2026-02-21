@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 @Configurable
-@TeleOp(name="Velocity PIDF Tuner", group="tuning")
+//@TeleOp(name="Velocity PIDF Tuner", group="tuning")
 public class VelocityPIDFTuner extends OpMode {
     final String MOTORNAME = "shooter"; // set this to the motor you want to tune
 

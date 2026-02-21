@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.ColorSensor;
 import org.firstinspires.ftc.teamcode.subsystems.Indexer;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
@@ -22,8 +23,11 @@ public class Robot {
     public final ShooterSubsystem shooter;
     public final Follower follower; // Pedro Pathing Follower
 
+    public final ColorSensor colorSensor;
+
     // --- Match Context ---
     public Alliance alliance;
+    public Spinner spinner;
     private List<LynxModule> allHubs;
 
     // --- Poses & Targeting ---
@@ -33,8 +37,9 @@ public class Robot {
 
     public static Pose shootTarget = BLUE_SHOOT_TARGET;
 
-    public Robot(HardwareMap hardwareMap, Telemetry telemetry, Alliance alliance) {
+    public Robot(HardwareMap hardwareMap, Telemetry telemetry, Alliance alliance, Spinner spinner) {
         this.alliance = alliance;
+        this.spinner = spinner;
 
         // 1. Initialize Pedro Pathing Follower
         follower = Constants.createFollower(hardwareMap);
@@ -44,10 +49,12 @@ public class Robot {
         indexer = new Indexer();
         spindexer = new Spindexer();
         shooter = new ShooterSubsystem(hardwareMap);
+        colorSensor = new ColorSensor();
 
         spindexer.initAndReset(hardwareMap);
         intake.Init(telemetry, hardwareMap);
         indexer.Init(hardwareMap, telemetry, spindexer);
+        colorSensor.init(hardwareMap, telemetry);
 
         // 3. Setup Bulk Caching (Properly handling BOTH hubs)
         allHubs = hardwareMap.getAll(LynxModule.class);
@@ -106,6 +113,10 @@ public class Robot {
     public void setAlliance(Alliance newAlliance) {
         this.alliance = newAlliance;
         setShootTarget();
+    }
+
+    public void setSpinner(Spinner newSpinner) {
+        this.spinner = newSpinner;
     }
 
     public Pose getShootTarget() {

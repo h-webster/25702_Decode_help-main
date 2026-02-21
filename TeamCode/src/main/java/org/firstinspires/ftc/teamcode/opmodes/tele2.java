@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.Alliance;
+import org.firstinspires.ftc.teamcode.Spinner;
 import org.firstinspires.ftc.teamcode.subsystems.Indexer;
 
 @TeleOp
@@ -35,7 +36,7 @@ public class tele2 extends OpMode {
 
     @Override
     public void init() {
-        robot = new Robot(hardwareMap, telemetry, Alliance.Blue);
+        robot = new Robot(hardwareMap, telemetry, Alliance.Blue, Spinner.PPG);
 
         telemetry.addLine("Robot Initialized via Robot Container. Waiting for start...");
         telemetry.update();
@@ -48,6 +49,12 @@ public class tele2 extends OpMode {
         }
         if (gamepad1.dpadDownWasPressed()) {
             robot.setAlliance(Alliance.Red);
+        }
+        if (gamepad1.dpadLeftWasPressed()){
+            robot.setSpinner(Spinner.GPP);
+        }
+        if (gamepad1.dpadRightWasPressed()){
+            robot.setSpinner(Spinner.PGP);
         }
 
         telemetry.addData("Alliance", robot.alliance);
@@ -121,6 +128,15 @@ public class tele2 extends OpMode {
         } else {
             robot.intake.spinIn();
         }
+
+        if (robot.colorSensor.detectNewSample()) {
+            if (robot.indexer.currentState == Indexer.State.IDLE) {
+                robot.spindexer.rotateCounterclockwise();
+
+                gamepad1.rumbleBlips(1);
+            }
+        }
+
     }
 
     private void automatic() {

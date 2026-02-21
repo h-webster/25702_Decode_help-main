@@ -145,6 +145,9 @@ public class Spindexer {
     }
 
     public void rotateCounterclockwise() {
+        if (!isAtTarget()) {
+            return;
+        }
         int next = (targetPositionIndex % 3) + 1;
         goToPos(next, false);
     }
