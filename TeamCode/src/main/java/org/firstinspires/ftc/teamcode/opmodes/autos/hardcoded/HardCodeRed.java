@@ -1,6 +1,5 @@
-package org.firstinspires.ftc.teamcode.opmodes.autos;
+package org.firstinspires.ftc.teamcode.opmodes.autos.hardcoded;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,8 +9,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmodes.scrap.RobotTimer;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 
-@Autonomous(name = "Blue 3 auto hard code", group = "Actual Auto")
-public class HardCodeBlue extends OpMode {
+//@Autonomous(name = "Re 3 auto hard code", group = "Actual Auto")
+public class HardCodeRed extends OpMode {
 
 
 
@@ -111,8 +110,8 @@ public class HardCodeBlue extends OpMode {
                 break;
             case 9:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                    /* Set the state to a Case we won't use or define, so it just stops running an new paths */
-                    setPathState(-1);
+                /* Set the state to a Case we won't use or define, so it just stops running an new paths */
+                setPathState(-1);
                 break;
         }
     }
@@ -129,10 +128,10 @@ public class HardCodeBlue extends OpMode {
     public void strafeLeft() {
         final double SPEED = 0.5;
         strafeTimer.start();
-        frontLeft.setPower(SPEED);
-        frontRight.setPower(-SPEED);
-        backLeft.setPower(-SPEED);
-        backRight.setPower(SPEED);
+        frontLeft.setPower(-SPEED);
+        frontRight.setPower(SPEED);
+        backLeft.setPower(SPEED);
+        backRight.setPower(-SPEED);
     }
     public void setAllMotors(double speed) {
         frontLeft.setPower(speed);

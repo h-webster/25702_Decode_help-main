@@ -25,6 +25,7 @@ public class tele2 extends OpMode {
     }
     private AutoShootState autoState = AutoShootState.IDLE;
     private int shotsFired = 0;
+    public int artifactsLoaded = 0;
     private final Timer stateTimer = new Timer();
     Pose targetPose;
     private enum ShooterMode { AUTO, MANUAL }
@@ -129,11 +130,13 @@ public class tele2 extends OpMode {
             robot.intake.spinIn();
         }
 
-        if (robot.colorSensor.detectNewSample()) {
-            if (robot.indexer.currentState == Indexer.State.IDLE) {
-                robot.spindexer.rotateCounterclockwise();
-
-                gamepad1.rumbleBlips(1);
+        if (artifactsLoaded < 3) {
+            if (robot.colorSensor.detectNewSample()) {
+                if (robot.indexer.currentState == Indexer.State.IDLE) {
+                    robot.spindexer.rotateCounterclockwise();
+                    artifactsLoaded++;
+                    gamepad1.rumbleBlips(1);
+                }
             }
         }
 
@@ -175,6 +178,9 @@ public class tele2 extends OpMode {
             case WAITING_FOR_INDEX:
                 if (robot.indexer.currentState == Indexer.State.IDLE) {
                     shotsFired++;
+                    if (artifactsLoaded > 0){
+                        artifactsLoaded--;
+                    }
 
                     if (shotsFired >= 3) {
                         autoState = AutoShootState.COMPLETE;

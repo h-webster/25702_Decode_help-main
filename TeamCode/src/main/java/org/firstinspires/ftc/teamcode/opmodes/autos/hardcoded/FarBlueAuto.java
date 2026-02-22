@@ -1,6 +1,5 @@
-package org.firstinspires.ftc.teamcode.opmodes.autos;
+package org.firstinspires.ftc.teamcode.opmodes.autos.hardcoded;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,11 +9,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmodes.scrap.RobotTimer;
 import org.firstinspires.ftc.teamcode.subsystems.Spindexer;
 
-@Autonomous(name = "Re 3 auto hard code", group = "Actual Auto")
-public class HardCodeRed extends OpMode {
-
-
-
+//@Autonomous(name = "Far Blue auto hard code", group = "Actual Auto")
+public class FarBlueAuto extends OpMode {
     private int pathState;
 
     CRServo LeftServo, RightServo;
@@ -33,16 +29,16 @@ public class HardCodeRed extends OpMode {
 
     int shootsLeft = 3;
 
-    RobotTimer shootTimer = new RobotTimer(3000);
-    RobotTimer backTimer = new RobotTimer(1400);
+    RobotTimer shootTimer = new RobotTimer(2500);
+    RobotTimer forwardTimer = new RobotTimer(1100);
     RobotTimer strafeTimer = new RobotTimer(1100);
 
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                ShooterSet(-0.6);
                 // Start the shooter
-                driveBack();
+                ShooterSet(-0.75);
+                shootTimer.start();
                 setPathState(1);
                 break;
             case 1:
@@ -54,9 +50,8 @@ public class HardCodeRed extends OpMode {
             */
 
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(backTimer.IsDone()) {
+                if(shootTimer.IsDone()) {
                     /* At shooting position so shoot all preloads */
-                    stopDrive();
                     shootTimer.start();
                     setPathState(2);
                 }
@@ -86,7 +81,7 @@ public class HardCodeRed extends OpMode {
                 if (shootTimer.IsDone()) {
 //                    spindexer.rotateClockwise(false);
                     shootTimer.start();
-                    setPathState(6);
+                    setPathState(10);
                 }
                 break;
             case 6:
@@ -106,7 +101,6 @@ public class HardCodeRed extends OpMode {
                 if (strafeTimer.IsDone()) {
                     stopDrive();
                     setPathState(9);
-
                 }
                 break;
             case 9:
@@ -114,8 +108,18 @@ public class HardCodeRed extends OpMode {
                 /* Set the state to a Case we won't use or define, so it just stops running an new paths */
                 setPathState(-1);
                 break;
+            case 10:
+                if (shootTimer.IsDone()) {
+//                    spindexer.rotateClockwise(false);
+                    shootTimer.start();
+                    setPathState(6);
+                }
+                break;
         }
+
     }
+
+
 
     /** These change the states of the paths and actions. It will also reset the timers of the individual switches **/
     public void setPathState(int pState) {
@@ -123,10 +127,22 @@ public class HardCodeRed extends OpMode {
     }
     public void driveBack() {
         final double SPEED = -0.5;
-        backTimer.start();
+        setAllMotors(SPEED);
+    }
+    public void moveForward() {
+        final double SPEED = 0.5;
+        forwardTimer.start();
         setAllMotors(SPEED);
     }
     public void strafeLeft() {
+        final double SPEED = 0.5;
+        strafeTimer.start();
+        frontLeft.setPower(SPEED);
+        frontRight.setPower(-SPEED);
+        backLeft.setPower(-SPEED);
+        backRight.setPower(SPEED);
+    }
+    public void strafeRight() {
         final double SPEED = 0.5;
         strafeTimer.start();
         frontLeft.setPower(-SPEED);
@@ -134,6 +150,7 @@ public class HardCodeRed extends OpMode {
         backLeft.setPower(SPEED);
         backRight.setPower(-SPEED);
     }
+
     public void setAllMotors(double speed) {
         frontLeft.setPower(speed);
         frontRight.setPower(speed);
@@ -230,7 +247,5 @@ public class HardCodeRed extends OpMode {
     public void start() {
         setPathState(0);
     }
-
-    /** We do not use this because everything should automatically disable **/
-
 }
+
