@@ -7,7 +7,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Indexer;
 
 public class autoShooterSequence {
     Robot r;
-    double dist = 0;
 
     private enum State {
         IDLE,
@@ -27,8 +26,7 @@ public class autoShooterSequence {
         this.r = robot;
     }
 
-    public void start(double distance) {
-        dist = distance;
+    public void start() {
         boolean close = r.follower.getPose().getY() > 72;
         r.shooter.forPose(r.follower.getPose(), r.getShootTarget(), close);
 

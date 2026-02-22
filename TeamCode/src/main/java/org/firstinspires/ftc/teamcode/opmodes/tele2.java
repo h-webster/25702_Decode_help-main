@@ -6,8 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.Alliance;
-import org.firstinspires.ftc.teamcode.Spinner;
+import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.util.PoseStorage;
+import org.firstinspires.ftc.teamcode.util.Spinner;
 import org.firstinspires.ftc.teamcode.subsystems.Indexer;
 
 @TeleOp
@@ -65,8 +66,7 @@ public class tele2 extends OpMode {
 
     @Override
     public void start() {
-        Pose startPose = (robot.alliance == Alliance.Red) ? BLUE_START_POSE.mirror() : BLUE_START_POSE;
-        robot.follower.setPose(startPose);
+        robot.follower.setStartingPose(PoseStorage.currentPose);
         robot.follower.startTeleopDrive();
 
         calibrated = false;

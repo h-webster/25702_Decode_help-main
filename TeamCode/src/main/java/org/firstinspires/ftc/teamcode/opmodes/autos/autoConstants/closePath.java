@@ -6,14 +6,14 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 
-import org.firstinspires.ftc.teamcode.Alliance;
+import org.firstinspires.ftc.teamcode.util.Alliance;
 
 public class closePath {
 
     public Follower follower;
 
     public Pose start = new Pose(21.913, 123, Math.toRadians(136));
-    public Pose scorefirst = new Pose(45, 100, Math.toRadians(136));
+    public Pose scorefirst = new Pose(45, 84, Math.toRadians(136));
 
     public Pose setFirstPick = new Pose(45, 84, Math.toRadians(180));
     public Pose firstPick = new Pose(16.5, 84, Math.toRadians(180));
