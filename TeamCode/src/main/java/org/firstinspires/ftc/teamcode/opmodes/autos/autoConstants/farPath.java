@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.autos.autoConstants;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -53,17 +54,11 @@ public class farPath {
                 .build();
     }
 
-    public PathChain setOne() {
-        return follower.pathBuilder()
-                .addPath(new BezierLine(scoreFirst, setFirstPick))
-                .setLinearHeadingInterpolation(scoreFirst.getHeading(), setFirstPick.getHeading())
-                .build();
-    }
-
     public PathChain pickOne() {
         return follower.pathBuilder()
-                .addPath(new BezierLine(setFirstPick, firstPick))
-                .setLinearHeadingInterpolation(setFirstPick.getHeading(), firstPick.getHeading())
+                .addPath(new BezierCurve(scoreFirst, setFirstPick, firstPick))
+                .setBrakingStrength(.75)
+                .setLinearHeadingInterpolation(scoreFirst.getHeading(), firstPick.getHeading())
                 .build();
     }
 
@@ -74,17 +69,11 @@ public class farPath {
                 .build();
     }
 
-    public PathChain setTwo() {
-        return follower.pathBuilder()
-                .addPath(new BezierLine(scoreSecond, setSecondPick))
-                .setLinearHeadingInterpolation(scoreSecond.getHeading(), setSecondPick.getHeading())
-                .build();
-    }
-
     public PathChain pickTwo() {
         return follower.pathBuilder()
-                .addPath(new BezierLine(setSecondPick, secondPick))
-                .setLinearHeadingInterpolation(setSecondPick.getHeading(), secondPick.getHeading())
+                .addPath(new BezierCurve(scoreSecond, setSecondPick, secondPick))
+                .setBrakingStrength(.75)
+                .setLinearHeadingInterpolation(scoreSecond.getHeading(), secondPick.getHeading())
                 .build();
     }
 
@@ -105,13 +94,11 @@ public class farPath {
     public PathChain next() {
         switch (index++) {
             case 0: return scoreP();
-            case 1: return setOne();
-            case 2: return pickOne();
-            case 3: return scoreTwo();
-            case 4: return setTwo();
-            case 5: return pickTwo();
-            case 6: return scoreThird();
-            case 7: return parkPath();
+            case 1: return pickOne();
+            case 2: return scoreTwo();
+            case 3: return pickTwo();
+            case 4: return scoreThird();
+            case 5: return parkPath();
             default: return null;
         }
     }

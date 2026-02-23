@@ -110,6 +110,7 @@ public class redCloseAuto extends OpMode {
                 break;
 
             case 6:
+                r.intake.spinIn();
                 intakeSequence();
                 if (!follower.isBusy()) {
                     follower.followPath(paths.scoreFourth(), true);
@@ -122,6 +123,7 @@ public class redCloseAuto extends OpMode {
             case 7:
                 if (!follower.isBusy() && shooterSeq.isDone()) {
                     shooterSeq.resetToIdle();
+                    r.intake.stop();
                     r.shooter.off();
                     pathState = -1;
                 }

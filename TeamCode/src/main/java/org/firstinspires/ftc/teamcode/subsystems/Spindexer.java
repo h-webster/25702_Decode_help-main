@@ -20,8 +20,8 @@ public class Spindexer {
     public static double KiClose = 0.0001;
     public static double KdCLose = 0.25;
     // Limits
-    public static double MAX_POWER = 0.9;
-    public static double MIN_POWER = -0.9;
+    public static double MAX_POWER = 1.0;
+    public static double MIN_POWER = -1.0;
     private static final double POSITION_TOLERANCE = 4.0;
     private static final double MAX_INTEGRAL = 50;
 

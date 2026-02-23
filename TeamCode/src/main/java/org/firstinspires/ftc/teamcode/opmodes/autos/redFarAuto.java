@@ -5,6 +5,7 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.opmodes.autos.autoConstants.farPath;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.util.PoseStorage;
@@ -13,11 +14,11 @@ import org.firstinspires.ftc.teamcode.opmodes.autos.autoConstants.autoShooterSeq
 import org.firstinspires.ftc.teamcode.opmodes.autos.autoConstants.closePath;
 
 @Autonomous
-public class blueCloseAuto extends OpMode {
+public class redFarAuto extends OpMode {
 
     private Robot r;
     private Follower follower;
-    private closePath paths;
+    private farPath paths;
     private autoShooterSequence shooterSeq;
     private double artifactsLoaded = 0;
 
@@ -26,10 +27,10 @@ public class blueCloseAuto extends OpMode {
 
     @Override
     public void init() {
-        r = new Robot(hardwareMap, telemetry, Alliance.Blue, Spinner.PPG);
+        r = new Robot(hardwareMap, telemetry, Alliance.Red, Spinner.PPG);
         follower = r.follower;
 
-        paths = new closePath(follower, Alliance.Blue);
+        paths = new farPath(follower, Alliance.Red);
         shooterSeq = new autoShooterSequence(r);
 
         follower.setStartingPose(paths.start);
@@ -100,27 +101,13 @@ public class blueCloseAuto extends OpMode {
                 break;
 
             case 5:
-                if (!follower.isBusy() && shooterSeq.isDone()) {
-                    shooterSeq.resetToIdle();
-
-                    r.intake.spinIn();
-                    follower.followPath(paths.pickThree(), true);
+                if (!follower.isBusy()) {
+                    follower.followPath(paths.parkPath(), true);
                     pathState = 6;
                 }
                 break;
 
             case 6:
-                r.intake.spinIn();
-                intakeSequence();
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.scoreFourth(), true);
-                    shooterSeq.start();
-                    artifactsLoaded = 0;
-                    pathState = 7;
-                }
-                break;
-
-            case 7:
                 if (!follower.isBusy() && shooterSeq.isDone()) {
                     shooterSeq.resetToIdle();
                     r.intake.stop();
@@ -138,9 +125,9 @@ public class blueCloseAuto extends OpMode {
     public void intakeSequence(){
         if (artifactsLoaded < 3) {
             if (r.colorSensor.detectNewSample()) {
-               r.spindexer.rotateCounterclockwise();
-               artifactsLoaded++;
-               gamepad1.rumbleBlips(1);
+                r.spindexer.rotateCounterclockwise();
+                artifactsLoaded++;
+                gamepad1.rumbleBlips(1);
             }
         }
     }
