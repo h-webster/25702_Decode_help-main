@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.util.SampleColor;
 
 public class ColorSensor {
     private NormalizedColorSensor colorSensor;
@@ -21,7 +22,6 @@ public class ColorSensor {
     private final double DETECTION_DISTANCE_CM = 3.5;
 
     // Possible states based on the hue ranges you provided
-    public enum SampleColor { NONE, TARGET_150_170, TARGET_230_250 }
     public SampleColor lastDetected = SampleColor.NONE;
 
     public void init(HardwareMap hardwareMap, Telemetry tele) {
@@ -34,6 +34,12 @@ public class ColorSensor {
         colorSensor.setGain(2.0f);
     }
 
+    public SampleColor getCurrentDetected() {
+        if (detectNewSample()) {
+            return lastDetected;
+        }
+        return SampleColor.NONE;
+    }
     /**
      * Call this inside your loop. It returns true ONLY when it is highly confident
      * that a new sample has fully entered the intake based on the requested hues.
@@ -57,9 +63,9 @@ public class ColorSensor {
         SampleColor detectedThisLoop = SampleColor.NONE;
 
         if (hue >= 150 && hue <= 170) {
-            detectedThisLoop = SampleColor.TARGET_150_170;
+            detectedThisLoop = SampleColor.GREEN;
         } else if (hue >= 230 && hue <= 250) {
-            detectedThisLoop = SampleColor.TARGET_230_250;
+            detectedThisLoop = SampleColor.PURPLE;
         }
 
         // 4. Confidence Check

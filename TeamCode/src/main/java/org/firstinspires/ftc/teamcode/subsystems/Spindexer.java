@@ -7,22 +7,25 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.util.SampleColor;
+
 @Configurable
 public class Spindexer {
     public DcMotorEx spindexer;
     private String motorName = "motor2";
 
     // PID Coefficients
-    public static double Kp = 0.072;
-    public static double Ki = 0.0001;
-    public static double Kd = 0.15;
+    public static double Kp = 0.0685;
+    public static double Ki = 0.0000;
+    public static double Kd = 0.24;
     public static double KpClose = 0.03;
-    public static double KiClose = 0.0001;
-    public static double KdCLose = 0.25;
+    public static double KiClose = 0.0000;
+    public static double KdCLose = 0.29;
     // Limits
-    public static double MAX_POWER = 1.0;
-    public static double MIN_POWER = -1.0;
-    private static final double POSITION_TOLERANCE = 4.0;
+    public static double MAX_POWER = 0.9;
+    public static double MIN_POWER = -0.9;
+    private static final double POSITION_TOLERANCE = 6.0;
     private static final double MAX_INTEGRAL = 50;
 
     // Movement Math
@@ -37,14 +40,14 @@ public class Spindexer {
 
     public int currentPosition = 1;
     public int targetPositionIndex = 1;
-    public int[] posStates = {-1, -1, -1};
-
+    public SampleColor[] posStates = {SampleColor.NONE, SampleColor.NONE, SampleColor.NONE};
+    private Telemetry telemetry;
     // Timers
     private final Timer pidTimer = new Timer();
     private final Timer moveTimer = new Timer();
     private static final double MIN_MOVE_DELAY = 0.3;
 
-    public void init(HardwareMap hardwareMap, boolean reset) {
+    public void init(HardwareMap hardwareMap, boolean reset, Telemetry telemetry) {
         spindexer = hardwareMap.get(DcMotorEx.class, motorName);
         if (reset) {
             spindexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -52,7 +55,7 @@ public class Spindexer {
         spindexer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         spindexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         spindexer.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        this.telemetry = telemetry;
         accum = 0;
         targetPosTicks = 0;
         currentPosition = 1;
@@ -63,14 +66,15 @@ public class Spindexer {
         moveTimer.resetTimer();
     }
 
-    public void initAndReset(HardwareMap hardwareMap) {
-        init(hardwareMap, true);
+    public void initAndReset(HardwareMap hardwareMap, Telemetry telemetry) {
+        init(hardwareMap, true, telemetry);
     }
 
     public void update() {
         double currentPos = spindexer.getCurrentPosition();
         double error = targetPosTicks - currentPos;
 
+        telemetry.addData("Spindexer error: ", error);
         double deltaTime = pidTimer.getElapsedTime();
         pidTimer.resetTimer();
 
@@ -107,7 +111,6 @@ public class Spindexer {
         if (Math.abs(error) < POSITION_TOLERANCE) {
             currentPosition = targetPositionIndex;
         }
-
         lastError = error;
     }
 
@@ -149,7 +152,7 @@ public class Spindexer {
             return;
         }
         int next = (targetPositionIndex % 3) + 1;
-        goToPos(next, false);
+        goToPos(next, true);
     }
 
     // --- Helper Methods ---
@@ -158,12 +161,27 @@ public class Spindexer {
         return Math.abs(targetPosTicks - spindexer.getCurrentPosition()) < POSITION_TOLERANCE;
     }
 
-    public void updateSlotState(int slot, int state) {
+    public void updateSlotState(int slot, SampleColor state) {
         if (slot >= 1 && slot <= 3) {
             posStates[slot - 1] = state;
+        } else {
+            throw new IllegalArgumentException("Invalid slot: " + slot + ". Valid slots are 1, 2, or 3.");
         }
     }
-
+    public boolean areSlotsLoaded() {
+        int G = 0, P = 0;
+        for (SampleColor sample : posStates) {
+            switch (sample) {
+                case NONE:
+                    return false;
+                case GREEN:
+                    G++;
+                case PURPLE:
+                    P++;
+            }
+        }
+        return P == 2 && G ==1;
+    }
     public int getTargetTicks() { return targetPosTicks; }
     public double getPower() { return power; }
     public double getError() { return targetPosTicks - spindexer.getCurrentPosition(); }

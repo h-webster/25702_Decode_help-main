@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.PoseStorage;
+import org.firstinspires.ftc.teamcode.util.SampleColor;
 import org.firstinspires.ftc.teamcode.util.Spinner;
 import org.firstinspires.ftc.teamcode.subsystems.Indexer;
 
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Indexer;
 public class tele2 extends OpMode {
     private Robot robot;
     private boolean calibrated = false;
+    private boolean isShootingMotif = false;
     private enum AutoShootState {
         IDLE,
         SPINNING_UP,
@@ -130,9 +132,14 @@ public class tele2 extends OpMode {
             robot.intake.spinIn();
         }
 
+        if (gamepad1.rightBumperWasPressed()){
+            robot.spindexer.rotateCounterclockwise();
+        }
         if (artifactsLoaded < 3) {
             if (robot.colorSensor.detectNewSample()) {
                 if (robot.indexer.currentState == Indexer.State.IDLE) {
+                    SampleColor detected = robot.colorSensor.lastDetected;
+                    robot.spindexer.updateSlotState(robot.spindexer.targetPositionIndex, detected);
                     robot.spindexer.rotateCounterclockwise();
                     artifactsLoaded++;
                     gamepad1.rumbleBlips(1);
@@ -148,8 +155,8 @@ public class tele2 extends OpMode {
         switch (autoState) {
             case IDLE:
                 if (gamepad1.xWasPressed()) {
+                    isShootingMotif = robot.spindexer.areSlotsLoaded();
                     robot.shooter.forPose(robot.follower.getPose(), robot.getShootTarget(), close);
-                    autoState = AutoShootState.SPINNING_UP;
                     stateTimer.resetTimer();
                 }
                 break;
@@ -166,10 +173,14 @@ public class tele2 extends OpMode {
             case READY:
                 shotsFired = 0;
                 autoState = AutoShootState.SHOOTING;
+                if (isShootingMotif) {
+                    // yep gotta spin to the correct slot but i dont want to
+                }
 
                 break;
 
             case SHOOTING:
+
                 robot.indexer.enable();
                 robot.indexer.Index();
                 autoState = AutoShootState.WAITING_FOR_INDEX;
