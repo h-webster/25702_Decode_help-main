@@ -107,7 +107,7 @@ public class tele2 extends OpMode {
         robot.follower.setTeleOpDrive(
                 gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x,
+                -gamepad1.right_stick_x * 0.85,
                 true
         );
 
@@ -132,14 +132,13 @@ public class tele2 extends OpMode {
 
         if (artifactsLoaded < 3) {
             if (robot.colorSensor.detectNewSample()) {
-                if (robot.indexer.currentState == Indexer.State.IDLE) {
+                if (autoState.equals(AutoShootState.IDLE)) {
                     robot.spindexer.rotateCounterclockwise();
                     artifactsLoaded++;
                     gamepad1.rumbleBlips(1);
                 }
             }
         }
-
     }
 
     private void automatic() {
@@ -171,7 +170,6 @@ public class tele2 extends OpMode {
 
             case SHOOTING:
                 robot.indexer.enable();
-                robot.indexer.Index();
                 autoState = AutoShootState.WAITING_FOR_INDEX;
                 break;
 
@@ -182,7 +180,7 @@ public class tele2 extends OpMode {
                         artifactsLoaded--;
                     }
 
-                    if (shotsFired >= 3) {
+                    if (shotsFired >= 3 || artifactsLoaded == 0) {
                         autoState = AutoShootState.COMPLETE;
                     } else {
                         robot.indexer.disable();
@@ -199,15 +197,14 @@ public class tele2 extends OpMode {
                 break;
 
             case COMPLETE:
-                robot.shooter.setPower(0);
+                robot.shooter.off();
                 robot.indexer.enable();
                 autoState = AutoShootState.IDLE;
                 break;
         }
 
-
-        if (gamepad1.b) {
-            robot.shooter.setPower(0);
+        if (gamepad1.bWasPressed()) {
+            robot.shooter.off();
             robot.indexer.enable();
             autoState = AutoShootState.IDLE;
         }
@@ -218,6 +215,10 @@ public class tele2 extends OpMode {
 
         if (gamepad1.xWasPressed()){
             robot.shooter.forPose(robot.follower.getPose(), robot.getShootTarget(), close);
+        }
+
+        if (gamepad1.bWasPressed()){
+            robot.shooter.off();
         }
 
         if (gamepad1.circle) {
