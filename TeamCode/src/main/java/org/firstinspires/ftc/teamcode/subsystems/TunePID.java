@@ -12,7 +12,7 @@ public class TunePID extends LinearOpMode {
     public void runOpMode() {
         // Initialize the spindexer
         spindexer = new Spindexer();
-        spindexer.init(hardwareMap, true, telemetry);
+        spindexer.init(hardwareMap, true);
 
 
         telemetry.addLine("Ready to tune!");

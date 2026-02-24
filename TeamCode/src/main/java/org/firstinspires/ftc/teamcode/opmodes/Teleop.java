@@ -55,7 +55,7 @@ public class Teleop extends OpMode {
 
         // Subsystem Inits
         intake.Init(telemetry, hardwareMap);
-        spindexer.init(hardwareMap, true, telemetry);
+        spindexer.init(hardwareMap, true);
         indexer.Init(hardwareMap, telemetry, spindexer);
     }
 

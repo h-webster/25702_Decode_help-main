@@ -53,7 +53,7 @@ public class Robot {
         shooter = new ShooterSubsystem(hardwareMap);
         colorSensor = new ColorSensor();
 
-        spindexer.initAndReset(hardwareMap, telemetry);
+        spindexer.initAndReset(hardwareMap);
         intake.Init(telemetry, hardwareMap);
         indexer.Init(hardwareMap, telemetry, spindexer);
         colorSensor.init(hardwareMap, telemetry);
